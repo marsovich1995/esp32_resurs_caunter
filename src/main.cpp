@@ -37,6 +37,7 @@ static uint8_t pinCold = GPIO_NUM_32;
 static uint8_t pinHot = GPIO_NUM_34;
 static uint8_t BTN= GPIO_NUM_23;
 static uint8_t LED = GPIO_NUM_2;
+static uint8_t LED2 = GPIO_NUM_22;
 
 // Button button1 = {BTN, 0, false};
 hw_timer_t *timer = NULL; 
@@ -136,9 +137,9 @@ all_IMPLS.caunt_hot.pulse(pinHot,1000);
 
 void interup_elec() {
   if(check_celebrat() || weekday() == 1 || weekday() == 7 || hour()==23 || ( hour() <= 6 && minute() <= 59) ){
-    all_IMPLS.caunt_elec_T2.pulse(pinElectric,20);    
+    all_IMPLS.caunt_elec_T2.pulse(pinElectric,20,LED2);    
   }else{
-    all_IMPLS.caunt_elec_T1.pulse(pinElectric,20);
+    all_IMPLS.caunt_elec_T1.pulse(pinElectric,20,LED2);
   }
 }
 
@@ -157,6 +158,7 @@ void setup() {
   pinMode(pinCold, INPUT_PULLUP);
   pinMode(BTN, INPUT_PULLDOWN);
   pinMode(LED, OUTPUT);
+  pinMode(LED2, OUTPUT);
 
 
   attachInterrupt(digitalPinToInterrupt(pinCold),interup_cold, FALLING);
@@ -193,6 +195,8 @@ int8_t time_out_conection = 7;
 */
 //wcp.startConfigPortal("Onellas");
 //setTime(1604991480);
+
+
 if (!loadConfig(sett)){ 
     buttonstate_t state2;
     state2 = SETT_LED;

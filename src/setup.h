@@ -45,11 +45,11 @@ struct CauntIPLS {
     volatile boolean lastImpuls =0;
     //volatile boolean ImpulsT1 = 0;  
   
-    void pulse(uint8_t pin, int pause){
+    void pulse(uint8_t pin, int pause, uint8_t LED_ind=255){
         static unsigned long last_interrupt_time = 0;
         unsigned long interrupt_time = millis();    
         Impuls =digitalRead(pin);
-       
+        if (LED_ind != 255) digitalWrite(LED_ind,Impuls);
         if ( (interrupt_time-last_interrupt_time)>pause &&  (lastImpuls == 0 )) {
              impulses  ++;
              Serial.println("coll caunt");
