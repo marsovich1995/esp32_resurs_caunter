@@ -33,7 +33,7 @@ void storeConfig( SetUpData &sett)
 
 
 
-boolean loadConfig( SetUpData &sett) 
+void loadConfig( SetUpData &sett) 
 {
    
     EEPROM.begin( sizeof(sett) );
@@ -55,23 +55,22 @@ boolean loadConfig( SetUpData &sett)
         storeConfig(sett);
     }
 
-    if (sett.target_restart == 1){
-    //if (restart_rison == 1){
+   // if (sett.target_restart == 1){
+    if (sett.start_state == SAVED){
 
-        sett.target_restart = 0;
+        sett.start_state = GOOD;
         storeConfig(sett);
         if(!update_time(sett.TimeZone)){
             Serial.println("Время не утановлено");
-            return false;
+            sett.start_state = ERROR;
         }; // добавить настройку
 
-        return true;
     }else{
         sett.data_HOT = 0;
         sett.data_COLD = 0;
         sett.data_T1 = 0;
         sett.data_T2 = 0;
-        return false;
+        sett.start_state = ERROR;
      }
 }
 

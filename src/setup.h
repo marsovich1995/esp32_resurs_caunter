@@ -11,6 +11,7 @@
 #define ESP_CONNECT_TIMEOUT 15000
 
 
+enum start_state_t { ERROR,GOOD,SAVED } ;
 
 struct SetUpData {  
 // Начальные значения счетчиков
@@ -33,6 +34,8 @@ struct SetUpData {
     boolean target_restart;
     uint8_t crc_cng; // ??контрольная сумма
     uint8_t first_start; //ключь первого запуска
+
+    start_state_t start_state ;
 }; 
 
 
@@ -84,7 +87,7 @@ const uint8_t celebration [][2] = {{1,1},{1,2},{1,3},{1,4},{1,5},{1,6},{1,7},{1,
 
 boolean check_celebrat();
 void storeConfig( SetUpData &sett);
-boolean loadConfig( SetUpData &sett);
+void loadConfig( SetUpData &sett);
 
 
 

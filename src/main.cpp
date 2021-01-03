@@ -143,7 +143,15 @@ void interup_elec() {
   }
 }
 
+void blink_Error(void *pvParam){
+while (true)
+{
+  digitalWrite(LED, !digitalRead(LED));
+  vTaskDelay(pdMS_TO_TICKS(1000));
+//  Serial.println(String("требуется натройка"));
+}
 
+}
 
 
 void setup() {
@@ -196,11 +204,16 @@ int8_t time_out_conection = 7;
 //wcp.startConfigPortal("Onellas");
 //setTime(1604991480);
 
-
+/*
 if (!loadConfig(sett)){ 
     buttonstate_t state2;
     state2 = SETT_LED;
     xQueueSendFromISR(queue, &state2, NULL);
+}*/
+loadConfig(sett);
+
+if (sett.start_state == ERROR){
+xTaskCreate(blink_Error,"Blink", 1024, NULL, 1 , NULL);
 }
 
 }
@@ -224,11 +237,14 @@ if (xQueueReceive(queue, &state2, portMAX_DELAY) == pdTRUE  ){
   switch (state2)
   {
   case BTN_CLICK:
+    if (sett.start_state != ERROR){
     LEDBlink(LED,1,200);
     Serial.print("CLICK");
     //Serial.println(button1.numberKeyPresses);
-    calculate_values(sett,all_IMPLS,calcdata);
-    SendMqtt(calcdata,sett);
+   // calculate_values(sett,all_IMPLS,calcdata);
+  //  SendMqtt(calcdata,sett);
+  ///update_time(sett.TimeZone);
+  }
    break;
   case BTN_LONGCLICK:
     LEDBlink(LED,2,200);
@@ -239,10 +255,10 @@ if (xQueueReceive(queue, &state2, portMAX_DELAY) == pdTRUE  ){
     Serial.println(day()+String('.')+ month() +String('.')+ year() +String(' ')+hour()+String(':')+minute());
   break;  
   case SETT_LED:   
-    Serial.println(String("требуется натройка"));
-    LEDBlink(LED,1,1000);
-    state2 = SETT_LED;
-    xQueueSendFromISR(queue, &state2, NULL);
+    // Serial.println(String("требуется натройка"));
+    // LEDBlink(LED,1,1000);
+    // state2 = SETT_LED;
+    // xQueueSendFromISR(queue, &state2, NULL);
   break; 
 
   }

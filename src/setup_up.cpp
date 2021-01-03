@@ -127,8 +127,8 @@ void saveParamCallback(){
   wcp.sett_wifi->period_send = wcp.wake_every_min->getValue();
   strncpy(wcp.sett_wifi->description, wcp.param_description->getValue(),DESCRIP_LEN);
   wcp.sett_wifi->TimeZone = wcp.param_Timezon->getValue();
-  wcp.sett_wifi->target_restart = 1;
-
+  //wcp.sett_wifi->target_restart = 1;
+  wcp.sett_wifi->start_state = SAVED;
   storeConfig(*wcp.sett_wifi);
 
 }
