@@ -143,14 +143,27 @@ void interup_elec() {
   }
 }
 
+enum ledmode_t : uint8_t {LED_OFF, LED_ON, LED_1HZ, LED_2HZ, LED_4HZ};
+TaskHandle_t blink;
 void blink_Error(void *pvParam){
+  ledmode_t ledmode = LED_OFF;
+digitalWrite(LED, 0);
 while (true)
-{
-  digitalWrite(LED, !digitalRead(LED));
-  vTaskDelay(pdMS_TO_TICKS(1000));
-//  Serial.println(String("требуется натройка"));
-}
-
+  {
+    uint32_t notifyValue;
+    if (xTaskNotifyWait(0,0,&notifyValue, ledmode < LED_1HZ ? portMAX_DELAY : 0)== pdTRUE){
+      ledmode = (ledmode_t)notifyValue;
+      if (ledmode == LED_OFF)
+        digitalWrite (LED, 0);
+      else if (ledmode == LED_ON)
+        digitalWrite (LED, 1);
+    }
+    if (ledmode >= LED_1HZ){
+      digitalWrite (LED, !digitalRead(LED));
+      vTaskDelay(pdMS_TO_TICKS((ledmode == LED_1HZ ? 1000 : ledmode == LED_2HZ ? 500 : 250)));
+    }
+  //  Serial.println(String("требуется натройка"));
+  }
 }
 
 
@@ -212,9 +225,7 @@ if (!loadConfig(sett)){
 }*/
 loadConfig(sett);
 
-if (sett.start_state == ERROR){
-xTaskCreate(blink_Error,"Blink", 1024, NULL, 1 , NULL);
-}
+xTaskCreate(blink_Error,"Blink", 1024, NULL, 1 , &blink);
 
 }
 
@@ -230,29 +241,34 @@ void calculate_values(SetUpData &sett, DataAll_IMPLS &all_IMPLS ,CalculatedData 
 void loop()
 {
 
+  static ledmode_t ledmode = LED_ON;
+ // if (sett.start_state == ERROR) ledmode = LED_1HZ;
+  xTaskNotify(blink,ledmode, eSetValueWithoutOverwrite);
 buttonstate_t state2;
-
 if (xQueueReceive(queue, &state2, portMAX_DELAY) == pdTRUE  ){
 //if (xQueueReceive(queue, &state, pdMS_TO_TICKS(1000)) == pdTRUE){
   switch (state2)
   {
   case BTN_CLICK:
-    if (sett.start_state != ERROR){
-    LEDBlink(LED,1,200);
-    Serial.print("CLICK");
+  ledmode = LED_2HZ;
+   // if (sett.start_state != ERROR){
+   // LEDBlink(LED,1,200);
+    Serial.println("CLICK");
     //Serial.println(button1.numberKeyPresses);
    // calculate_values(sett,all_IMPLS,calcdata);
   //  SendMqtt(calcdata,sett);
   ///update_time(sett.TimeZone);
-  }
+ // }
    break;
   case BTN_LONGCLICK:
-    LEDBlink(LED,2,200);
+   // LEDBlink(LED,2,200);
+   ledmode = LED_4HZ;
     Serial.println("LONGCLICK");
-    setup_ap(sett,all_IMPLS,calcdata);
+   // setup_ap(sett,all_IMPLS,calcdata);
   break;
   case SEND:
     Serial.println(day()+String('.')+ month() +String('.')+ year() +String(' ')+hour()+String(':')+minute());
+    ledmode = LED_OFF;
   break;  
   case SETT_LED:   
     // Serial.println(String("требуется натройка"));
