@@ -55,7 +55,6 @@ void loadConfig( SetUpData &sett)
         storeConfig(sett);
     }
 
-   // if (sett.target_restart == 1){
     if (sett.start_state == SAVED){
 
         sett.start_state = GOOD;
@@ -74,74 +73,37 @@ void loadConfig( SetUpData &sett)
      }
 }
 
+boolean update_time( int Timezone ){
+  WiFiUDP ntpUDP;
+  NTPClient timeClient(ntpUDP); // Инициализация
+
+  connect_wl();
+
+  timeClient.begin(); 
+  if(!timeClient.update()) return false;
+  time_t t = timeClient.getEpochTime();
+
+  setTime(t); 
+  adjustTime(Timezone * 3600); // Внести поправку Часового пояса
+  
+  WiFi.disconnect(); // отключится
+  Serial.println("Время уставновлено");
+  return true;
+}
 
 
-/*
-    if (old_crc == new_crc)
+void connect_wl(){
+    WiFi.begin();
+    uint32_t start = millis();
+    while (WiFi.status() != WL_CONNECTED && millis() - start < ESP_CONNECT_TIMEOUT)
     {
-        LOG_NOTICE("CFG", "CRC ok");
+        Serial.print ( "." );
+        delay(500);
+    };
+}
 
-        // Для безопасной работы с буферами,  в библиотеках может не быть нет проверок
-        sett.key[KEY_LEN-1] = '\0';
-        sett.hostname[HOSTNAME_LEN-1] = '\0';
-        sett.email[EMAIL_LEN-1] = '\0';
-        sett.email_title[EMAIL_TITLE_LEN-1] = '\0';
-        sett.email_template[EMAIL_TEMPLATE_LEN-1] = '\0'; 
-        sett.hostname_json[EMAIL_TITLE_LEN-1] = '\0';
-        sett.name[HOSTNAME_LEN-1] = '\0';
-        sett.sn0[SN_LEN-1] = '\0';
-        sett.sn1[SN_LEN-1] = '\0';
-        sett.description[EMAIL_TITLE_LEN - 1] = '\0';
-        sett.coap_hostname[HOSTNAME_LEN-1] = '\0';
-     
-
-        
-        return true;
-    }
-    else 
-    {    // Конфигурация не была сохранена в EEPROM, инициализируем с нуля
-        LOG_WARNING( "CFG", "crc failed=" << sett.crc_cfg );
-
-        // Заполняем нулями всю конфигурацию
-        memset(&sett, 0, sizeof(sett));
-
-        sett.version = CURRENT_VERSION;  //для совместимости в будущем
-        sett.liters_per_impuls = LITRES_PER_IMPULS_DEFAULT;
-        
-        String hostname = BLYNK_DEFAULT_DOMAIN;
-        strncpy0(sett.hostname, hostname.c_str(), HOSTNAME_LEN);
-
-        String email_title = "Новые показания {DEVICE_NAME}";
-        strncpy0(sett.email_title, email_title.c_str(), EMAIL_TITLE_LEN);
-
-        String email_template = "Горячая: {V0}м3, Холодная: {V1}м3<br>За день:<br>Горячая: +{V3}л, Холодная: +{V4}л<br>Напряжение:{V2}В";
-        strncpy0(sett.email_template, email_template.c_str(), EMAIL_TEMPLATE_LEN);
-
-        String hostname_json = "http://myhome.ru:5005";
-        strncpy0(sett.hostname_json, hostname_json.c_str(), EMAIL_TITLE_LEN);
-
-        strncpy0(sett.coap_hostname, "coap://myhome.ru:5005", HOSTNAME_LEN);
-
-        String name = "Waterius_";
-        strncpy0(sett.name, name.c_str(), HOSTNAME_LEN);
-
-        strncpy0(sett.sn0, String("0000000").c_str(), SN_LEN);
-        strncpy0(sett.sn1, String("0000000").c_str(), SN_LEN);
-
-        sett.impulses0_previous = 0;
-        sett.impulses1_previous = 0;
-        sett.watersensor_previous = false;
-
-        sett.wake_every_min = 60;
-        sett.sensors = 0;
-
-        //caclulace CRC for config
-        sett.crc_cfg = 0;
-        uint8_t new_crc = crc_8((unsigned char*)&sett, sizeof(sett));
-        LOG_NOTICE( "CFG", "CRC calculated=" << new_crc << ", CRC Stored=" << sett.crc_cfg);
-        sett.crc_cfg = new_crc;
-        
-        LOG_NOTICE("CFG", "version=" << sett.version << ", hostname=" << hostname);
-        return false;
-    }
-}*/
+void disconnect_wl(){
+    Serial.println("Disconnecting Wifi");
+    WiFi.disconnect();
+    WiFi.mode(WIFI_OFF);
+}

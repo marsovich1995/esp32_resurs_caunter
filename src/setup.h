@@ -10,8 +10,19 @@
 #define DESCRIP_LEN 64
 #define ESP_CONNECT_TIMEOUT 15000
 
+#define LED  GPIO_NUM_2
+#define LED_ELEC GPIO_NUM_22
+
 
 enum start_state_t { ERROR,GOOD,SAVED } ;
+
+// static uint8_t pinElectric = GPIO_NUM_35;
+// static uint8_t pinCold = GPIO_NUM_32;
+// static uint8_t pinHot = GPIO_NUM_34;
+// static uint8_t BTN= GPIO_NUM_23;
+//static uint8_t LED = GPIO_NUM_2;
+//static uint8_t LED2 = GPIO_NUM_22;
+
 
 struct SetUpData {  
 // Начальные значения счетчиков
@@ -83,11 +94,14 @@ struct CalculatedData {
 };
 
 
-const uint8_t celebration [][2] = {{1,1},{1,2},{1,3},{1,4},{1,5},{1,6},{1,7},{1,8},{23,2},{8,3},{1,5},{9,5},{12,6},{4,11}};
+const uint8_t celebration [][2] = {{1,1},{2,1},{3,1},{4,1},{5,1},{6,1},{7,1},{8,1},{23,2},{8,3},{1,5},{9,5},{12,6},{4,11}};
 
 boolean check_celebrat();
 void storeConfig( SetUpData &sett);
 void loadConfig( SetUpData &sett);
+boolean update_time( int Timezone );
+void connect_wl();
+void disconnect_wl();
 
 
 

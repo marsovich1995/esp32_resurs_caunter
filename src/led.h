@@ -2,61 +2,54 @@
 #define _LED_h
 
 #include <Arduino.h>
+#include <setup.h>
+TaskHandle_t blink;
+enum ledmode_t : uint8_t {LED_OFF, LED_ON, LED_1HZ, LED_2HZ, LED_4HZ, LED_8HZ};
 
-/*
-struct Led
-{    
-    gpio_num_t _pin;
-    Led(gpio_num_t pin)
-        : _pin(pin)
-    {
+void blink_Error(void *pvParam);
 
+void set_blink(ledmode_t ledmode);
+void Create_LED_Task();
+void Stop_LED_Task();
+void Start_LED_Task();
+
+
+void blink_Error(void *pvParam){
+pinMode(LED, OUTPUT);
+ledmode_t ledmode = LED_OFF;
+digitalWrite(LED, 0);
+while (true)
+  {
+    uint32_t notifyValue;
+    if (xTaskNotifyWait(0,0,&notifyValue, ledmode < LED_1HZ ? portMAX_DELAY : 0)== pdTRUE){
+      ledmode = (ledmode_t)notifyValue;
+      if (ledmode == LED_OFF)
+        digitalWrite (LED, 0);
+      else if (ledmode == LED_ON)
+        digitalWrite (LED, 1);
     }
-
-    void LEDSet(gpio_num_t pin){
-        this->_pin = pin;
+    if (ledmode >= LED_1HZ){
+      digitalWrite (LED, !digitalRead(LED));
+      vTaskDelay(pdMS_TO_TICKS((ledmode == LED_1HZ ? 1000 : ledmode == LED_2HZ ? 500 : ledmode == LED_4HZ ? 250 : 125)));
     }
+  }
+}
 
-    bool LEDAllowed(){
-        return this->_pin > 0 ? true : false;
+void set_blink(ledmode_t ledmode){
+    if (eTaskGetState(blink) == eSuspended) vTaskResume(blink);
+    if (xTaskNotify(blink,ledmode, eSetValueWithoutOverwrite) != pdPASS){
+        Serial.println("Error seting LED mode");
     }
+}
 
-    void LEDTurnOn(){
-        if(this->LEDAllowed()){
-            gpio_pad_select_gpio(this->_pin);
-            gpio_set_direction(this->_pin, GPIO_MODE_OUTPUT);
-            gpio_set_level(this->_pin, HIGH);
-        }
-    }
+void Create_LED_Task(){
+xTaskCreate(blink_Error,"Blink", 1024, NULL, 1 , &blink);
+}
 
-    void LEDTurnOff(){
-        if(this->LEDAllowed()){
-            gpio_set_level(this->_pin, LOW);
-        }
-    }
-
-    //TODO: swap to Ticker.h after fixed https://github.com/espressif/arduino-esp32/pull/2849
-    void LEDBlink(int8_t num){
-        if(this->LEDAllowed()){
-            for (int i = 0; i < num; i++){
-                gpio_set_level(this->_pin, LOW);
-                delay(LEDBlinkOff);
-                gpio_set_level(this->_pin, HIGH);
-                delay(LEDBlinkOn);
-            }
-        }
-    }
-
-};*/
-
-
-    void LEDBlink(uint8_t LED, uint8_t num, uint16_t del){
-        
-            for (int i = 0; i < num*2; i++){
-                digitalWrite(LED, !digitalRead(LED));
-                delay(del);
-                
-            }
-        
-    }
+void Stop_LED_Task(){
+vTaskSuspend(blink);
+}
+void Start_LED_Task(){
+vTaskResume(blink);
+}
 #endif
