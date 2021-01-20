@@ -73,7 +73,7 @@ struct CauntIPLS {
     }
 };
 
-struct DataAll_IMPLS
+struct ImpulsData
 {
     CauntIPLS caunt_cold;
     CauntIPLS caunt_hot;

@@ -9,7 +9,7 @@
 
 SetUpData sett;
 CalculatedData calcdata;
-DataAll_IMPLS all_IMPLS;
+ImpulsData all_IMPLS;
 
 
 enum buttonstate_t : uint8_t { BTN_RELEARED, BTN_CLICK, BTN_LONGCLICK };
@@ -23,8 +23,6 @@ static uint8_t BTN= GPIO_NUM_23;
 
 hw_timer_t *timer = NULL; 
 
-uint64_t timer_count = 0;
-
 void  onTimer(){ // дейсвие по таймеру
 static uint64_t timer_count = 1;
   if (timer_count == sett.period_send){
@@ -36,7 +34,7 @@ static uint64_t timer_count = 1;
 timer_count ++;  
 }
 
-void btn_p(){
+void interup_btn(){
   const uint32_t CLICK_TIME = 50;
   const uint32_t LONGCLICK_TIME = 500;
   static uint32_t lastPressed = 0;
@@ -93,7 +91,7 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(pinCold),interup_cold, FALLING);
   attachInterrupt(digitalPinToInterrupt(pinHot),interup_hot, FALLING);  
   attachInterrupt(digitalPinToInterrupt(pinElectric),interup_elec, FALLING); 
-  attachInterrupt(digitalPinToInterrupt(BTN),btn_p, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(BTN),interup_btn, CHANGE);
 
   queue = xQueueCreate(32,sizeof(buttonstate_t));
   
@@ -105,12 +103,12 @@ void setup() {
 
   loadConfig(sett);
 
-  xTaskCreate(blink_Error,"Blink", 1024, NULL, 1 , &blink);
+  xTaskCreate(indication,"Blink", 1024, NULL, 1 , &blink);
 
 }
 
 
-void calculate_values(SetUpData &sett, DataAll_IMPLS &all_IMPLS ,CalculatedData &calcdata)
+void calculate_values(SetUpData &sett, ImpulsData &all_IMPLS ,CalculatedData &calcdata)
 {
   calcdata.data_COLD = sett.data_COLD + (all_IMPLS.caunt_cold.impulses / 1000.0) * sett.liters_per_impuls ;
   calcdata.data_HOT  = sett.data_HOT + (all_IMPLS.caunt_hot.impulses / 1000.0) * sett.liters_per_impuls;

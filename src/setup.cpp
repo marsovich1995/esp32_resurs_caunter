@@ -2,7 +2,6 @@
 #include <setup.h>
 #include <setup_up.h>
 
-extern int8_t case_status;
 
 boolean check_celebrat(){
   for (uint8_t i=0; i<14; i++){

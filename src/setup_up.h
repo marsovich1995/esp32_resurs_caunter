@@ -11,8 +11,8 @@
 #include <NTPClient.h>
 #include <TimeLib.h>
 
-void initParameter(SetUpData &sett, DataAll_IMPLS &all_IMPLS ,CalculatedData &calcdata);
-void setup_ap(SetUpData &sett, DataAll_IMPLS &all_IMPLS ,CalculatedData &calcdata);
+void initParameter(SetUpData &sett, ImpulsData &all_IMPLS ,CalculatedData &calcdata);
+void setup_ap(SetUpData &sett, ImpulsData &all_IMPLS ,CalculatedData &calcdata);
 void saveParamCallback();
 
 
@@ -77,7 +77,7 @@ struct WiFiCustomParameter{
     IntParameter *param_Timezon; // часовой пояс
 
     SetUpData *sett_wifi;  
-    DataAll_IMPLS data_wifi;  // для совместимости в будущем
+    ImpulsData data_wifi;  // для совместимости в будущем
     CalculatedData cdata_wifi; //
 };
 #endif

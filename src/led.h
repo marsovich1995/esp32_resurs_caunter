@@ -6,7 +6,7 @@
 TaskHandle_t blink;
 enum ledmode_t : uint8_t {LED_OFF, LED_ON, LED_1HZ, LED_2HZ, LED_4HZ, LED_8HZ};
 
-void blink_Error(void *pvParam);
+void indication(void *pvParam);
 
 void set_blink(ledmode_t ledmode);
 void Create_LED_Task();
@@ -14,7 +14,7 @@ void Stop_LED_Task();
 void Start_LED_Task();
 
 
-void blink_Error(void *pvParam){
+void indication(void *pvParam){
 pinMode(LED, OUTPUT);
 ledmode_t ledmode = LED_OFF;
 digitalWrite(LED, 0);
@@ -42,14 +42,4 @@ void set_blink(ledmode_t ledmode){
     }
 }
 
-void Create_LED_Task(){
-xTaskCreate(blink_Error,"Blink", 1024, NULL, 1 , &blink);
-}
-
-void Stop_LED_Task(){
-vTaskSuspend(blink);
-}
-void Start_LED_Task(){
-vTaskResume(blink);
-}
 #endif

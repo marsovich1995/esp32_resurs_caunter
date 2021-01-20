@@ -7,7 +7,7 @@
 WiFiManager wm;
 WiFiCustomParameter wcp;
 
-void initParameter(SetUpData &sett, DataAll_IMPLS &all_IMPLS ,CalculatedData &calcdata){
+void initParameter(SetUpData &sett, ImpulsData &all_IMPLS ,CalculatedData &calcdata){
 
     wcp.sett_wifi = &sett;
     wcp.data_wifi = all_IMPLS;
@@ -33,7 +33,7 @@ void initParameter(SetUpData &sett, DataAll_IMPLS &all_IMPLS ,CalculatedData &ca
 }
 
 
-void setup_ap(SetUpData &sett, DataAll_IMPLS &all_IMPLS ,CalculatedData &calcdata){
+void setup_ap(SetUpData &sett, ImpulsData &all_IMPLS ,CalculatedData &calcdata){
     std::vector<const char *> menu = {"param","sep", "wifi","sep","exit"};
     wm.setMenu(menu);
     wm.setClass("invert");
